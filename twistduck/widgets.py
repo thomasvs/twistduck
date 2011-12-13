@@ -30,3 +30,18 @@ class TimeLine(Widget):
         d = self.post(data)
 
         return d
+
+class Counter(Widget):
+    def send(self, value):
+        data = {
+            "timestamp": time.time(),
+            "value": value
+        }
+
+        d = self.post(data)
+
+        return d
+
+
+class CustomCounterTrend(Counter):
+    pass
