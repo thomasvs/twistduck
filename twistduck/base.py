@@ -6,6 +6,7 @@ from twisted.internet import reactor, protocol
 from twisted.web import iweb, client, http_headers
 from twisted.internet import defer
 
+
 class _StringProducer(object):
     implements(iweb.IBodyProducer)
 
@@ -23,6 +24,7 @@ class _StringProducer(object):
     def stopProducing(self):
         pass
 
+
 def _request(url, values={}, headers={}, method='POST'):
     agent = client.Agent(reactor)
     data = json.dumps(values)
@@ -36,13 +38,19 @@ def _request(url, values={}, headers={}, method='POST'):
         if response.code == 204:
             d = defer.succeed('')
         else:
+
             class SimpleReceiver(protocol.Protocol):
+
                 def __init__(s, d):
-                    s.buf = ''; s.d = d
+                    s.buf = ''
+                    s.d = d
+
                 def dataReceived(s, data):
                     s.buf += data
+
                 def connectionLost(s, reason):
-                    # TODO: test if reason is twisted.web.client.ResponseDone, if not, do an errback
+                    # TODO: test if reason is twisted.web.client.ResponseDone,
+                    # if not, do an errback
                     s.d.callback(s.buf)
 
             d = defer.Deferred()
@@ -51,6 +59,7 @@ def _request(url, values={}, headers={}, method='POST'):
 
     d.addCallback(handle_response)
     return d
+
 
 class DucksBoard(object):
     """
@@ -61,7 +70,7 @@ class DucksBoard(object):
 
     def __init__(self, key, auth):
         self._key = key
-        self._auth = auth
+        self._auth = str(auth)
 
     def post(self, wid, data):
         d = _request(
@@ -69,7 +78,5 @@ class DucksBoard(object):
             data,
             headers={
                 'Content-Type': ['application/json'],
-                'Authorization': [self._auth],
-            }
-        )
+                'Authorization': [self._auth]})
         return d
