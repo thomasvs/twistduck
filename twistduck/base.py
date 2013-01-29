@@ -38,27 +38,27 @@ def _request(url, values={}, headers={}, method='POST'):
         if response.code == 204:
             d = defer.succeed('')
         else:
-
-            class SimpleReceiver(protocol.Protocol):
-
-                def __init__(s, d):
-                    s.buf = ''
-                    s.d = d
-
-                def dataReceived(s, data):
-                    s.buf += data
-
-                def connectionLost(s, reason):
-                    # TODO: test if reason is twisted.web.client.ResponseDone,
-                    # if not, do an errback
-                    s.d.callback(s.buf)
-
             d = defer.Deferred()
             response.deliverBody(SimpleReceiver(d))
         return d
 
     d.addCallback(handle_response)
     return d
+
+
+class SimpleReceiver(protocol.Protocol):
+
+    def __init__(s, d):
+        s.buf = ''
+        s.d = d
+
+    def dataReceived(s, data):
+        s.buf += data
+
+    def connectionLost(s, reason):
+        # TODO: test if reason is twisted.web.client.ResponseDone,
+        # if not, do an errback
+        s.d.callback(s.buf)
 
 
 class DucksBoard(object):
